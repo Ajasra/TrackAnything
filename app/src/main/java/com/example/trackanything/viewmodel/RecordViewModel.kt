@@ -3,7 +3,6 @@ package com.example.trackanything.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.trackanything.model.Entities.Project
 import com.example.trackanything.model.Entities.Record
 import com.example.trackanything.repository.RecordRepository
 
@@ -19,28 +18,28 @@ class RecordViewModel(private val repository: RecordRepository) : ViewModel() {
     // Function to insert a record
     fun insertRecord(record: Record) {
         viewModelScope.launch {
-            repository.insertRecord(record)
+            repository.insert(record)
         }
     }
 
     // Function to delete a record
     fun deleteRecord(id: Int) {
         viewModelScope.launch {
-            repository.deleteRecord(id)
+            repository.delete(id)
         }
     }
 
     // Function to update a record
-    fun updateRecord(id: Int, value: String) {
+    fun updateRecord(record: Record) {
         viewModelScope.launch {
-            repository.updateRecord(id, value)
+            repository.update(record)
         }
     }
 
     // Function to delete all records for a project
     fun deleteAllRecordsForProject(projectId: Int) {
         viewModelScope.launch {
-            repository.deleteAllRecordsForProject(projectId)
+            repository.deleteForProject(projectId)
         }
     }
 }

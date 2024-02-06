@@ -1,8 +1,6 @@
 package com.example.trackanything.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,7 +40,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ProjectScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
-    val project = projectRepository.getProjectById(projectId.toInt()).observeAsState(initial = null).value
+    val project = projectRepository.getById(projectId.toInt()).observeAsState(initial = null).value
     val records = recordRepository.getRecordsForProject(projectId.toInt()).observeAsState(initial = emptyList()).value
 
     val showDialog = remember { mutableStateOf(false) }
@@ -182,8 +180,8 @@ fun RecordItem(record: Record) {
 
 fun deleteProject(projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String, navController: NavController){
     CoroutineScope(Dispatchers.IO).launch {
-        recordRepository.deleteAllRecordsForProject(projectId.toInt())
-        projectRepository.deleteProject(projectId.toInt())
+        recordRepository.deleteForProject(projectId.toInt())
+        projectRepository.delete(projectId.toInt())
         withContext(Dispatchers.Main) {
             navController.popBackStack() // Move this line here
         }

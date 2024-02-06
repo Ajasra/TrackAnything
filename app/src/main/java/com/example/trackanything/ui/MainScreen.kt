@@ -29,7 +29,7 @@ import com.google.accompanist.insets.navigationBarsPadding
 @Composable
 fun MainScreen(navController: NavController, projectRepository: ProjectRepository) {
 
-    val projects = projectRepository.getAllProjects().observeAsState(initial = emptyList()).value // Fetch all projects from the database
+    val projects = projectRepository.getAll().observeAsState(initial = emptyList()).value // Fetch all projects from the database
 
     Box(modifier = Modifier.fillMaxSize()) {
         MyHeader(title = "Track Anything")

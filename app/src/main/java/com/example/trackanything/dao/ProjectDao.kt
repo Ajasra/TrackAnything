@@ -2,42 +2,57 @@ package com.example.trackanything.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.trackanything.model.Entities.ProjNotification
 import com.example.trackanything.model.Entities.Project
-import com.example.trackanything.model.Entities.Record
 
+/**
+ * This is the Data Access Object (DAO) interface for the [Project] entity.
+ * It provides methods to perform database operations on [Project] objects.
+ */
 @Dao
 interface ProjectDao {
-    // LiveData list of all projects. Observed by ViewModel to update UI accordingly.
 
-    //PROJECTS
-    // Get all projects
+    /**
+     * Retrieves all [Project]s from the database.
+     *
+     * @return A [LiveData] list of all [Project]s.
+     */
     @Query("SELECT * FROM project")
-    fun getAllProjects(): LiveData<List<Project>>
+    fun getAll(): LiveData<List<Project>>
 
-    // Insert a project
+    /**
+     * Inserts a new [Project] into the database.
+     *
+     * @param project The [Project] to be inserted.
+     * @return The row ID of the newly inserted [Project].
+     */
     @Insert
-    suspend fun insertProject(project: Project): Long
+    suspend fun insert(project: Project): Long
 
-    // Get a project by id
+    /**
+     * Retrieves a [Project] from the database by its ID.
+     *
+     * @param id The ID of the [Project].
+     * @return A [LiveData] object containing the [Project] associated with the ID.
+     */
     @Query("SELECT * FROM project WHERE id = :id")
-    fun getProjectById(id: Int): LiveData<Project>
+    fun getById(id: Int): LiveData<Project>
 
-    // Delete a project by id
+    /**
+     * Deletes a [Project] from the database by its ID.
+     *
+     * @param id The ID of the [Project] to be deleted.
+     */
     @Query("DELETE FROM project WHERE id = :id")
-    suspend fun deleteProject(id: Int)
+    suspend fun delete(id: Int)
 
-    // Update a project by id
+    /**
+     * Updates an existing [Project] in the database.
+     *
+     * @param project The [Project] to be updated.
+     */
     @Update
-    suspend fun updateProject(project: Project)
-
-    // Update a project's active status by id
-    @Query("UPDATE project SET active = :active WHERE id = :id")
-    suspend fun updateProjectActiveStatus(id: Int, active: Boolean)
-
-
+    suspend fun update(project: Project)
 }

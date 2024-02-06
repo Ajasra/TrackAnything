@@ -25,10 +25,15 @@ import com.example.trackanything.ui.ProjectScreen
 // Theme
 import com.example.trackanything.ui.theme.TrackAnythingTheme
 
+/**
+ * This is the main activity of the application.
+ * It sets up the navigation and the repositories for the application.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize the DAOs and repositories
         val projectDao = AppDatabase.getDatabase(this).projectDao()
         val projectRepository = ProjectRepository(projectDao)
         val recordDao = AppDatabase.getDatabase(this).recordDao()
@@ -37,14 +42,21 @@ class MainActivity : ComponentActivity() {
         val notificationRepository = NotificationRepository(notificationDao)
 
         setContent {
+            // Set the theme for the application
             TrackAnythingTheme {
+                // Create a surface with the background color of the theme
                 Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+                    // Create a navigation controller
                     val navController = rememberNavController()
+                    // Set up the navigation host with the start destination as the main screen
                     NavHost(navController = navController, startDestination = "main_screen") {
+                        // Define the composable for the main screen
                         composable("main_screen") {
                             MainScreen(navController, projectRepository)
                         }
+                        // Define the composable for the add project screen
                         composable("addProject") { AddProjectScreen(navController, projectRepository, notificationRepository) }
+                        // Define the composable for the add record screen
                         composable("addRecord/{projectId}") { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getString("projectId")
                             if (projectId != null) {
@@ -53,6 +65,7 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             }
                         }
+                        // Define the composable for the project screen
                         composable("projectScreen/{projectId}") { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getString("projectId")
                             if (projectId != null) {
@@ -61,6 +74,7 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             }
                         }
+                        // Define the composable for the edit project screen
                         composable("editProject/{projectId}") { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getString("projectId")
                             if (projectId != null) {
@@ -76,6 +90,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * This is a preview function for the main activity.
+ * It is used by the Android Studio preview feature to display a preview of the UI in the design editor.
+ */
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {

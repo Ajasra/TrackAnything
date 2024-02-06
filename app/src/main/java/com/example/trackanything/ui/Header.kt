@@ -7,6 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * This is a Composable function that displays a header text.
+ *
+ * @param title The text to be displayed as the header.
+ */
 @Composable
 fun MyHeader(title: String) {
     Text(

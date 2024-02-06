@@ -1,6 +1,5 @@
 package com.example.trackanything.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackanything.repository.ProjectRepository
@@ -32,7 +30,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
-    val project = projectRepository.getProjectById(projectId.toInt()).observeAsState(initial = null).value
+    val project = projectRepository.getById(projectId.toInt()).observeAsState(initial = null).value
 
     var value by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
@@ -72,10 +70,10 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
                 var selectedOption by remember { mutableStateOf("") }
                 var showDropdown by remember { mutableStateOf(false) }
 
-                val options = project?.options?.split(",") ?: listOf()
+                val options = project.options.split(",")
 
                 Button(onClick = { showDropdown = true }) {
-                    Text(text = if (selectedOption.isBlank()) "Select an option" else selectedOption)
+                    Text(text = selectedOption.ifBlank { "Select an option" })
                 }
 
                 DropdownMenu(
@@ -145,7 +143,7 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
                         timeAdded = System.currentTimeMillis()
                     )
                     CoroutineScope(Dispatchers.IO).launch {
-                        recordRepository.insertRecord(newRecord)
+                        recordRepository.insert(newRecord)
                         showSnackbar = true
                         kotlinx.coroutines.delay(2000) // delay for 2 seconds
                         showSnackbar = false

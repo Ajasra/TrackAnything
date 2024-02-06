@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.Notification
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackanything.model.Entities.ProjNotification
@@ -20,6 +19,7 @@ import com.example.trackanything.repository.ProjectRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun AddProjectScreen(navController: NavController, projectRepository: ProjectRepository, notificationRepository: NotificationRepository) {
@@ -156,15 +156,19 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
                 )
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val projectId = projectRepository.insertProject(newProject).toInt()
+                    val projectId = projectRepository.insert(newProject).toInt()
                     val newNotification = ProjNotification(
                         id = 0, // 0 because the id is auto-generated
                         projectId = projectId, // Convert to Int if necessary
                         notificationType = selectedNotificationType,
                         time = notificationValue,
                     )
-                    notificationRepository.insertNotification(newNotification)
+                    notificationRepository.insert(newNotification)
                     println("Notification added: $newNotification")
+                    withContext(Dispatchers.Main) {
+                        println("Project added: $newProject")
+                        navController.popBackStack()
+                    }
                 }
                 println("Project added: $newProject")
                 navController.popBackStack()

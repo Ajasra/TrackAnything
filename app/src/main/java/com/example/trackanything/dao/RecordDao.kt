@@ -4,28 +4,55 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.trackanything.model.Entities.Record
 
+/**
+ * This is the Data Access Object (DAO) interface for the [Record] entity.
+ * It provides methods to perform database operations on [Record] objects.
+ */
 @Dao
 interface RecordDao {
-    //RECORDS
-    // Get all records for a project
+
+    /**
+     * Retrieves all [Record]s for a specific project from the database.
+     *
+     * @param projectId The ID of the project.
+     * @return A [LiveData] list of all [Record]s for the specified project, ordered by ID in descending order.
+     */
     @Query("SELECT * FROM record WHERE projectId = :projectId ORDER BY id DESC")
-    fun getRecordsForProject(projectId: Int): LiveData<List<Record>>
+    fun getByProject(projectId: Int): LiveData<List<Record>>
 
-    // Insert a record
-    @Insert()
-    suspend fun insertRecord(record: Record): Long
+    /**
+     * Inserts a new [Record] into the database.
+     *
+     * @param record The [Record] to be inserted.
+     * @return The row ID of the newly inserted [Record].
+     */
+    @Insert
+    suspend fun insert(record: Record): Long
 
-    // Delete a record by id
+    /**
+     * Updates an existing [Record] in the database.
+     *
+     * @param record The [Record] to be updated.
+     */
+    @Update
+    suspend fun update(record: Record)
+
+    /**
+     * Deletes a [Record] from the database by its ID.
+     *
+     * @param id The ID of the [Record] to be deleted.
+     */
     @Query("DELETE FROM record WHERE id = :id")
-    suspend fun deleteRecord(id: Int)
+    suspend fun delete(id: Int)
 
-    // Update a record by id
-    @Query("UPDATE record SET value = :value WHERE id = :id")
-    suspend fun updateRecord(id: Int, value: String)
-
-    // Delete all records for a project
+    /**
+     * Deletes all [Record]s for a specific project from the database.
+     *
+     * @param projectId The ID of the project.
+     */
     @Query("DELETE FROM record WHERE projectId = :projectId")
-    suspend fun deleteAllRecordsForProject(projectId: Int)
+    suspend fun deleteForProject(projectId: Int)
 }

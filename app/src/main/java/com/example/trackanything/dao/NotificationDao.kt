@@ -6,27 +6,44 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.trackanything.model.Entities.ProjNotification
-import com.example.trackanything.model.Entities.Project
 
+/**
+ * This is the Data Access Object (DAO) interface for the [ProjNotification] entity.
+ * It provides methods to perform database operations on [ProjNotification] objects.
+ */
 @Dao
 interface NotificationDao {
+
+    /**
+     * Inserts a new [ProjNotification] into the database.
+     *
+     * @param projNotification The [ProjNotification] to be inserted.
+     */
     @Insert
     suspend fun insert(projNotification: ProjNotification)
 
+    /**
+     * Updates an existing [ProjNotification] in the database.
+     *
+     * @param projNotification The [ProjNotification] to be updated.
+     */
     @Update
-    suspend fun updateNotification(projNotification: ProjNotification)
+    suspend fun update(projNotification: ProjNotification)
 
+    /**
+     * Retrieves a [ProjNotification] from the database by its project ID.
+     *
+     * @param projectId The ID of the project.
+     * @return A [LiveData] object containing the [ProjNotification] associated with the project ID.
+     */
     @Query("SELECT * FROM ProjNotification WHERE projectId = :projectId")
-    fun getNotificationsForProject(projectId: Int): LiveData<ProjNotification>
+    fun getByProjectId(projectId: Int): LiveData<ProjNotification>
 
-    @Query("SELECT * FROM ProjNotification WHERE id = :id")
-    fun getNotificationById(id: Int): ProjNotification
-
+    /**
+     * Deletes a [ProjNotification] from the database by its ID.
+     *
+     * @param id The ID of the [ProjNotification] to be deleted.
+     */
     @Query("DELETE FROM ProjNotification WHERE id = :id")
-    fun deleteNotification(id: Int)
-
-    @Query("SELECT * FROM ProjNotification")
-    fun getAllNotifications(): List<ProjNotification>
-
-
+    fun deleteById(id: Int)
 }
