@@ -32,9 +32,9 @@ class ProjectViewModel(private val repository: ProjectRepository) : ViewModel() 
     }
 
     // Function to update a project
-    fun updateProject(id: Int, name: String, description: String, active: Boolean, tags: String, valueType: String) {
+    fun updateProject(project: Project) {
         viewModelScope.launch {
-            repository.updateProject(id, name, description, active, tags, valueType)
+            repository.updateProject(project)
         }
     }
 
@@ -45,36 +45,5 @@ class ProjectViewModel(private val repository: ProjectRepository) : ViewModel() 
         }
     }
 
-    // Function to get records for a project
-    fun getRecordsForProject(projectId: Int): LiveData<List<Record>> {
-        return repository.getRecordsForProject(projectId)
-    }
 
-    // Function to insert a record
-    fun insertRecord(record: Record) {
-        viewModelScope.launch {
-            repository.insertRecord(record)
-        }
-    }
-
-    // Function to delete a record
-    fun deleteRecord(id: Int) {
-        viewModelScope.launch {
-            repository.deleteRecord(id)
-        }
-    }
-
-    // Function to update a record
-    fun updateRecord(id: Int, value: String) {
-        viewModelScope.launch {
-            repository.updateRecord(id, value)
-        }
-    }
-
-    // Function to delete all records for a project
-    fun deleteAllRecordsForProject(projectId: Int) {
-        viewModelScope.launch {
-            repository.deleteAllRecordsForProject(projectId)
-        }
-    }
 }

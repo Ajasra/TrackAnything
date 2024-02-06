@@ -10,16 +10,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.Notification
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.trackanything.model.Entities.ProjNotification
 import com.example.trackanything.model.Entities.Project
+import com.example.trackanything.repository.NotificationRepository
 import com.example.trackanything.repository.ProjectRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddProjectScreen(navController: NavController, projectRepository: ProjectRepository) {
+fun AddProjectScreen(navController: NavController, projectRepository: ProjectRepository, notificationRepository: NotificationRepository) {
     var projectName by remember { mutableStateOf("") }
     var projectDescription by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -28,6 +31,11 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
     var selectedValueType by remember { mutableStateOf(valueTypes[0]) }
     var showDropdown by remember { mutableStateOf(false) }
     var selectValues by remember { mutableStateOf("") }
+
+    val notificationType = listOf("Random", "Specific")
+    var selectedNotificationType by remember { mutableStateOf(notificationType[0]) }
+    var showNotificationTypeDropdown by remember { mutableStateOf(false) }
+    var notificationValue by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -90,6 +98,48 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
             Spacer(modifier = Modifier.height(16.dp))
         }
 
+//        Add here fields for notification type and time
+
+        Button(onClick = { showNotificationTypeDropdown = true }) {
+            Text("Notification Type: $selectedNotificationType")
+        }
+
+        DropdownMenu(
+            expanded = showNotificationTypeDropdown,
+            onDismissRequest = { showNotificationTypeDropdown = false }
+        ) {
+            notificationType.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(type) },
+                    onClick = {
+                        selectedNotificationType = type
+                        showNotificationTypeDropdown = false
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = notificationValue,
+            onValueChange = { notificationValue = it },
+            label = { Text("Enter time") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        if(selectedNotificationType == "Random"){
+            Text(
+                text = "Format: HH:MM-HH:MM, Number of times",
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }else{
+            Text(
+                text = "Format: HH:MM, HH:MM, HH:MM ...",
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
         Button(onClick = {
             if (projectName.isBlank()) {
                 showError = true
@@ -106,7 +156,15 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
                 )
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    projectRepository.insertProject(newProject)
+                    val projectId = projectRepository.insertProject(newProject).toInt()
+                    val newNotification = ProjNotification(
+                        id = 0, // 0 because the id is auto-generated
+                        projectId = projectId, // Convert to Int if necessary
+                        notificationType = selectedNotificationType,
+                        time = notificationValue,
+                    )
+                    notificationRepository.insertNotification(newNotification)
+                    println("Notification added: $newNotification")
                 }
                 println("Project added: $newProject")
                 navController.popBackStack()

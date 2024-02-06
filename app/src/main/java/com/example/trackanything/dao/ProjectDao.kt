@@ -2,8 +2,11 @@ package com.example.trackanything.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
+import com.example.trackanything.model.Entities.ProjNotification
 import com.example.trackanything.model.Entities.Project
 import com.example.trackanything.model.Entities.Record
 
@@ -29,32 +32,12 @@ interface ProjectDao {
     suspend fun deleteProject(id: Int)
 
     // Update a project by id
-    @Query("UPDATE project SET name = :name, description = :description, active = :active, tags = :tags, valueType = :valueType WHERE id = :id")
-    suspend fun updateProject(id: Int, name: String, description: String, active: Boolean, tags: String, valueType: String)
+    @Update
+    suspend fun updateProject(project: Project)
 
     // Update a project's active status by id
     @Query("UPDATE project SET active = :active WHERE id = :id")
     suspend fun updateProjectActiveStatus(id: Int, active: Boolean)
 
-    //RECORDS
-    // Get all records for a project
-    @Query("SELECT * FROM record WHERE projectId = :projectId ORDER BY id DESC")
-    fun getRecordsForProject(projectId: Int): LiveData<List<Record>>
-
-    // Insert a record
-    @Insert()
-    suspend fun insertRecord(record: Record): Long
-
-    // Delete a record by id
-    @Query("DELETE FROM record WHERE id = :id")
-    suspend fun deleteRecord(id: Int)
-
-    // Update a record by id
-    @Query("UPDATE record SET value = :value WHERE id = :id")
-    suspend fun updateRecord(id: Int, value: String)
-
-    // Delete all records for a project
-    @Query("DELETE FROM record WHERE projectId = :projectId")
-    suspend fun deleteAllRecordsForProject(projectId: Int)
 
 }

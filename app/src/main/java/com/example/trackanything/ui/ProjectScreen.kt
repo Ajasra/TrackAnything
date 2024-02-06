@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackanything.model.Entities.Record
+import com.example.trackanything.repository.RecordRepository
 import com.google.accompanist.insets.navigationBarsPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,10 +40,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun ProjectScreen(navController: NavController, projectRepository: ProjectRepository, projectId: String) {
+fun ProjectScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
     val project = projectRepository.getProjectById(projectId.toInt()).observeAsState(initial = null).value
-    val records = projectRepository.getRecordsForProject(projectId.toInt()).observeAsState(initial = emptyList()).value
+    val records = recordRepository.getRecordsForProject(projectId.toInt()).observeAsState(initial = emptyList()).value
 
     val showDialog = remember { mutableStateOf(false) }
     var showSnackbar by remember { mutableStateOf(false) } // Add this line
@@ -54,7 +55,7 @@ fun ProjectScreen(navController: NavController, projectRepository: ProjectReposi
             text = { Text("Are you sure you want to delete this project and all its records?") },
             confirmButton = {
                 TextButton(onClick = {
-                    deleteProject(projectRepository, projectId, navController) // Call the function here
+                    deleteProject(projectRepository, recordRepository, projectId, navController) // Call the function here
                     showDialog.value = false
                 }) {
                     Text("Confirm")
@@ -112,9 +113,31 @@ fun ProjectScreen(navController: NavController, projectRepository: ProjectReposi
                 verticalAlignment = Alignment.Bottom
             ){
                 FloatingActionButton(
+                    onClick = { navController.navigate("main_screen") },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .navigationBarsPadding(),
+                    content = {
+                        Icon(Icons.Filled.Home, contentDescription = "Delete")
+                    }
+                )
+                FloatingActionButton(
+                    onClick = {
+                        if (project != null) {
+                            navController.navigate("editProject/${project.id}")
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .navigationBarsPadding(),
+                    content = {
+                        Icon(Icons.Filled.Edit, contentDescription = "Add")
+                    }
+                )
+                FloatingActionButton(
                     onClick = { showDialog.value = true },
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(8.dp)
                         .navigationBarsPadding(),
                     content = {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete")
@@ -157,9 +180,9 @@ fun RecordItem(record: Record) {
     }
 }
 
-fun deleteProject(projectRepository: ProjectRepository, projectId: String, navController: NavController){
+fun deleteProject(projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String, navController: NavController){
     CoroutineScope(Dispatchers.IO).launch {
-        projectRepository.deleteAllRecordsForProject(projectId.toInt())
+        recordRepository.deleteAllRecordsForProject(projectId.toInt())
         projectRepository.deleteProject(projectId.toInt())
         withContext(Dispatchers.Main) {
             navController.popBackStack() // Move this line here

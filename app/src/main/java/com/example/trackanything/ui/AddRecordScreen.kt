@@ -23,13 +23,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackanything.repository.ProjectRepository
+import com.example.trackanything.repository.RecordRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepository, projectId: String) {
+fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
     val project = projectRepository.getProjectById(projectId.toInt()).observeAsState(initial = null).value
 
@@ -144,7 +145,7 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
                         timeAdded = System.currentTimeMillis()
                     )
                     CoroutineScope(Dispatchers.IO).launch {
-                        projectRepository.insertRecord(newRecord)
+                        recordRepository.insertRecord(newRecord)
                         showSnackbar = true
                         kotlinx.coroutines.delay(2000) // delay for 2 seconds
                         showSnackbar = false
