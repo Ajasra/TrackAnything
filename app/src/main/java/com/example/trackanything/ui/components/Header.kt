@@ -1,4 +1,4 @@
-package com.example.trackanything.ui
+package com.example.trackanything.ui.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text

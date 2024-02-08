@@ -1,5 +1,6 @@
-package com.example.trackanything.ui
+package com.example.trackanything.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,10 +28,13 @@ import androidx.compose.runtime.*
 import com.example.trackanything.repository.ProjectRepository
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.trackanything.model.Entities.Record
+import com.example.trackanything.models.Record
 import com.example.trackanything.repository.RecordRepository
+import com.example.trackanything.ui.components.MyHeader
+import com.example.trackanything.utils.NotificationUtils
 import com.google.accompanist.insets.navigationBarsPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,11 +44,13 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ProjectScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
-    val project = projectRepository.getById(projectId.toInt()).observeAsState(initial = null).value
+    val project = projectRepository.getLDById(projectId.toInt()).observeAsState(initial = null).value
     val records = recordRepository.getRecordsForProject(projectId.toInt()).observeAsState(initial = emptyList()).value
 
     val showDialog = remember { mutableStateOf(false) }
     var showSnackbar by remember { mutableStateOf(false) } // Add this line
+
+    val context = LocalContext.current
 
     if (showDialog.value) {
         AlertDialog(
@@ -53,7 +59,7 @@ fun ProjectScreen(navController: NavController, projectRepository: ProjectReposi
             text = { Text("Are you sure you want to delete this project and all its records?") },
             confirmButton = {
                 TextButton(onClick = {
-                    deleteProject(projectRepository, recordRepository, projectId, navController) // Call the function here
+                    deleteProject(context, projectRepository, recordRepository, projectId, navController) // Call the function here
                     showDialog.value = false
                 }) {
                     Text("Confirm")
@@ -178,10 +184,11 @@ fun RecordItem(record: Record) {
     }
 }
 
-fun deleteProject(projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String, navController: NavController){
+fun deleteProject(context: Context, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String, navController: NavController){
     CoroutineScope(Dispatchers.IO).launch {
         recordRepository.deleteForProject(projectId.toInt())
         projectRepository.delete(projectId.toInt())
+        NotificationUtils.deleteNotificationForProject(context, projectId.toInt())
         withContext(Dispatchers.Main) {
             navController.popBackStack() // Move this line here
         }

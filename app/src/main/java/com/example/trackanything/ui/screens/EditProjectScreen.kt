@@ -1,5 +1,6 @@
-package com.example.trackanything.ui
+package com.example.trackanything.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,23 +19,24 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.*
 import com.example.trackanything.repository.ProjectRepository
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.trackanything.model.Entities.ProjNotification
-import com.example.trackanything.model.Entities.Project
-import com.example.trackanything.repository.NotificationRepository
+import com.example.trackanything.models.Project
+import com.example.trackanything.ui.components.MyHeader
+import com.example.trackanything.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun EditProjectScreen(navController: NavController, projectRepository: ProjectRepository, notificationRepository: NotificationRepository, projectId: String) {
+fun EditProjectScreen(navController: NavController, projectRepository: ProjectRepository, projectId: String) {
 
-    val project = projectRepository.getById(projectId.toInt()).observeAsState(initial = null).value
-    val projNotification = notificationRepository.getByProjectId(projectId.toInt()).observeAsState(initial = null).value
+    val context = LocalContext.current
 
+    val project = projectRepository.getLDById(projectId.toInt()).observeAsState(initial = null).value
 
-    if (project != null && projNotification != null) {
+    if (project != null) {
         var projectName by remember { mutableStateOf(project.name) }
         var projectDescription by remember { mutableStateOf(project.description) }
         var projectActive by remember { mutableStateOf(project.active) }
@@ -42,9 +44,8 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
         var projectValueType by remember { mutableStateOf(project.valueType) }
         var projectOptions by remember { mutableStateOf(project.options) }
 
-        var notificationType by remember { mutableStateOf(projNotification.notificationType) }
-        var notificationValue by remember { mutableStateOf(projNotification.time) }
-        val notificationId by remember { mutableIntStateOf(projNotification.id) }
+        var notificationType by remember { mutableStateOf(project.notificationType) }
+        var notificationValue by remember { mutableStateOf(project.notificationTime) }
 
         var showDropdown by remember { mutableStateOf(false) }
         val valueTypes = listOf("number", "check", "select", "text")
@@ -150,7 +151,6 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
             Button(onClick = {
                 updateProject(
                     projectRepository,
-                    notificationRepository,
                     projectId.toInt(),
                     projectName,
                     projectDescription,
@@ -160,7 +160,7 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
                     projectOptions,
                     notificationType,
                     notificationValue,
-                    notificationId
+                    context
                 )
                 navController.popBackStack()
             }) {
@@ -174,7 +174,6 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
 
 fun updateProject(
     projectRepository: ProjectRepository,
-    notificationRepository: NotificationRepository,
     projectId: Int,
     projectName: String,
     projectDescription: String,
@@ -184,7 +183,7 @@ fun updateProject(
     projectOptions: String,
     notificationType: String,
     notificationValue: String,
-    notificationId: Int
+    context: Context
 ) {
     val updProject = Project(
         id = projectId,
@@ -193,18 +192,14 @@ fun updateProject(
         active = projectActive,
         tags = projectTags,
         valueType = projectValueType,
-        options = projectOptions
+        options = projectOptions,
+        notificationType = notificationType,
+        notificationTime = notificationValue
     )
 
     CoroutineScope(Dispatchers.IO).launch {
         projectRepository.update(updProject)
-        val newNotification = ProjNotification(
-            id = notificationId,
-            projectId = projectId, // Convert to Int if necessary
-            notificationType = notificationType,
-            time = notificationValue,
-        )
-        notificationRepository.update(newNotification)
-        println("Notification added: $newNotification")
+        NotificationUtils.scheduleNotificationsForProject(context, updProject)
+        NotificationUtils.handleNextNotification(context)
     }
 }

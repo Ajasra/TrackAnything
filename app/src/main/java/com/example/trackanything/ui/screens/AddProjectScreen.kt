@@ -1,4 +1,4 @@
-package com.example.trackanything.ui
+package com.example.trackanything.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -10,19 +10,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.trackanything.model.Entities.ProjNotification
-import com.example.trackanything.model.Entities.Project
-import com.example.trackanything.repository.NotificationRepository
+import com.example.trackanything.models.Project
 import com.example.trackanything.repository.ProjectRepository
+import com.example.trackanything.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun AddProjectScreen(navController: NavController, projectRepository: ProjectRepository, notificationRepository: NotificationRepository) {
+fun AddProjectScreen(navController: NavController, projectRepository: ProjectRepository) {
     var projectName by remember { mutableStateOf("") }
     var projectDescription by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -36,6 +36,8 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
     var selectedNotificationType by remember { mutableStateOf(notificationType[0]) }
     var showNotificationTypeDropdown by remember { mutableStateOf(false) }
     var notificationValue by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -152,26 +154,22 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
                     active = true,
                     tags = "",
                     valueType = selectedValueType,
-                    options = selectValues
+                    options = selectValues,
+                    notificationType = selectedNotificationType,
+                    notificationTime = notificationValue
                 )
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val projectId = projectRepository.insert(newProject).toInt()
-                    val newNotification = ProjNotification(
-                        id = 0, // 0 because the id is auto-generated
-                        projectId = projectId, // Convert to Int if necessary
-                        notificationType = selectedNotificationType,
-                        time = notificationValue,
-                    )
-                    notificationRepository.insert(newNotification)
-                    println("Notification added: $newNotification")
+
+                    val id = projectRepository.insert(newProject)
+                    val createdProject = projectRepository.getById(id.toInt())
                     withContext(Dispatchers.Main) {
-                        println("Project added: $newProject")
+                        NotificationUtils.scheduleNotificationsForProject(context, createdProject)
+                        NotificationUtils.handleNextNotification(context)
                         navController.popBackStack()
                     }
                 }
                 println("Project added: $newProject")
-                navController.popBackStack()
             }
         }) {
             Text("Add Project")

@@ -1,8 +1,10 @@
-package com.example.trackanything.model.Entities
+package com.example.trackanything.models
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Represents a Project entity in the database.
@@ -14,7 +16,10 @@ import androidx.room.PrimaryKey
  * @property tags A string representing tags associated with the project.
  * @property valueType A string representing the type of value the project holds.
  * @property options A string representing options associated with the project.
+ * @property notificationType A string representing the type of notifications associated with the project.
+ * @property notificationTime A string representing the time of notifications associated with the project.
  */
+@Parcelize
 @Entity
 data class Project(
     @PrimaryKey(autoGenerate = true) val id: Int,
@@ -23,8 +28,10 @@ data class Project(
     val active: Boolean,
     val tags: String,
     val valueType: String,
-    val options: String
-)
+    val options: String,
+    val notificationType: String,
+    val notificationTime: String,
+) : Parcelable
 
 /**
  * Represents a Record entity in the database.
@@ -56,8 +63,9 @@ data class Record(
  *
  * @property id The unique ID of the notification.
  * @property projectId The ID of the project that this notification is associated with.
- * @property notificationType The type of the notification (specific time, random).
- * @property time The time associated with the notification.
+ * @property time The time when this notification is scheduled.
+ * @property message The message of the notification.
+ * @property title The title of the notification.
  */
 @Entity(
     foreignKeys = [ForeignKey(
@@ -70,6 +78,7 @@ data class Record(
 data class ProjNotification(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val projectId: Int,
-    val notificationType: String,
     val time: String,
+    val message: String,
+    val title: String,
 )

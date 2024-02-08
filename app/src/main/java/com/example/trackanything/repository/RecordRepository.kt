@@ -2,7 +2,7 @@ package com.example.trackanything.repository
 
 import androidx.lifecycle.LiveData
 import com.example.trackanything.dao.RecordDao
-import com.example.trackanything.model.Entities.Record
+import com.example.trackanything.models.Record
 
 /**
  * This is the repository class for the [Record] entity.
@@ -17,7 +17,7 @@ class RecordRepository(private val recordDao: RecordDao) {
      * Retrieves all [Record]s for a specific project from the database.
      *
      * @param projectId The ID of the project.
-     * @return A [LiveData] list of all [Record]s for the specified project.
+     * @return A [LiveData] list of all [Record]s for the specified project, ordered by ID in descending order.
      */
     fun getRecordsForProject(projectId: Int): LiveData<List<Record>> {
         return recordDao.getByProject(projectId)

@@ -1,5 +1,7 @@
 package com.example.trackanything
 
+// Screens
+// Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,21 +11,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.trackanything.database.AppDatabase
-import com.example.trackanything.repository.NotificationRepository
 import com.example.trackanything.repository.ProjectRepository
 import com.example.trackanything.repository.RecordRepository
-// Screens
-import com.example.trackanything.ui.AddProjectScreen
-import com.example.trackanything.ui.AddRecordScreen
-import com.example.trackanything.ui.EditProjectScreen
-import com.example.trackanything.ui.MainScreen
-import com.example.trackanything.ui.ProjectScreen
-// Theme
+import com.example.trackanything.ui.screens.AddProjectScreen
+import com.example.trackanything.ui.screens.AddRecordScreen
+import com.example.trackanything.ui.screens.EditProjectScreen
+import com.example.trackanything.ui.screens.MainScreen
+import com.example.trackanything.ui.screens.ProjectScreen
 import com.example.trackanything.ui.theme.TrackAnythingTheme
+import com.example.trackanything.utils.NotificationUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * This is the main activity of the application.
@@ -33,13 +36,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val context = this
+
         // Initialize the DAOs and repositories
-        val projectDao = AppDatabase.getDatabase(this).projectDao()
+        val projectDao = AppDatabase.getDatabase(context).projectDao()
         val projectRepository = ProjectRepository(projectDao)
-        val recordDao = AppDatabase.getDatabase(this).recordDao()
+        val recordDao = AppDatabase.getDatabase(context).recordDao()
         val recordRepository = RecordRepository(recordDao)
-        val notificationDao = AppDatabase.getDatabase(this).notificationDao()
-        val notificationRepository = NotificationRepository(notificationDao)
+
+        // Set the content of the activity
+        NotificationUtils.createNotificationChannel(this)
+        lifecycleScope.launch(Dispatchers.IO) {
+            NotificationUtils.checkNotificationOnStart(context, projectRepository)
+        }
 
         setContent {
             // Set the theme for the application
@@ -55,7 +64,7 @@ class MainActivity : ComponentActivity() {
                             MainScreen(navController, projectRepository)
                         }
                         // Define the composable for the add project screen
-                        composable("addProject") { AddProjectScreen(navController, projectRepository, notificationRepository) }
+                        composable("addProject") { AddProjectScreen(navController, projectRepository) }
                         // Define the composable for the add record screen
                         composable("addRecord/{projectId}") { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getString("projectId")
@@ -78,7 +87,7 @@ class MainActivity : ComponentActivity() {
                         composable("editProject/{projectId}") { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getString("projectId")
                             if (projectId != null) {
-                                EditProjectScreen(navController, projectRepository, notificationRepository, projectId)
+                                EditProjectScreen(navController, projectRepository, projectId)
                             } else {
                                 navController.popBackStack()
                             }

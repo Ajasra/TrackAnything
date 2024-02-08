@@ -1,8 +1,7 @@
 package com.example.trackanything.repository
 
-import androidx.lifecycle.LiveData
 import com.example.trackanything.dao.NotificationDao
-import com.example.trackanything.model.Entities.ProjNotification
+import com.example.trackanything.models.ProjNotification
 
 /**
  * This is the repository class for the [ProjNotification] entity.
@@ -18,7 +17,7 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
      *
      * @param notification The [ProjNotification] to be inserted.
      */
-    suspend fun insert(notification: ProjNotification) {
+    fun insert(notification: ProjNotification) {
         notificationDao.insert(notification)
     }
 
@@ -31,6 +30,33 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
         notificationDao.deleteById(id)
     }
 
+
+    /**
+     * Deletes a [ProjNotification] from the database by its project ID.
+     *
+     * @param projectId The ID of the project. All [ProjNotification]s associated with this project ID will be deleted.
+     */
+    fun deletaByProjectId(projectId: Int) {
+        notificationDao.deleteByProjectId(projectId)
+    }
+
+    /**
+     * Deletes all [ProjNotification]s from the database.
+     */
+    fun deleteAll() {
+        notificationDao.deleteAll()
+    }
+
+
+    /**
+     * Deletes all [ProjNotification]s from the database that are older than a specified time.
+     *
+     * @param time The time threshold. All [ProjNotification]s with a time earlier than this will be deleted.
+     */
+    fun deleteOlderThan(time: String) {
+        notificationDao.deleteOlderThan(time)
+    }
+
     /**
      * Updates an existing [ProjNotification] in the database.
      *
@@ -41,13 +67,21 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
     }
 
     /**
-     * Retrieves a [ProjNotification] from the database by its project ID.
+     * Retrieves a [ProjNotification] from the database by its ID.
      *
-     * @param projectId The ID of the project.
-     * @return A [LiveData] object containing the [ProjNotification] associated with the project ID.
+     * @param id The ID of the [ProjNotification].
+     * @return The [ProjNotification] object with the given ID.
      */
-    fun getByProjectId(projectId: Int): LiveData<ProjNotification> {
-        return notificationDao.getByProjectId(projectId)
+    fun getById(id: Int): ProjNotification {
+        return notificationDao.getById(id)
     }
 
+    /**
+     * Retrieves the next [ProjNotification] from the database, ordered by time in ascending order.
+     *
+     * @return The [ProjNotification] object with the earliest time.
+     */
+    fun getNext(): ProjNotification {
+        return notificationDao.getNext()
+    }
 }

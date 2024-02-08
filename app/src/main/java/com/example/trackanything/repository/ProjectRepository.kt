@@ -2,7 +2,7 @@ package com.example.trackanything.repository
 
 import androidx.lifecycle.LiveData
 import com.example.trackanything.dao.ProjectDao
-import com.example.trackanything.model.Entities.Project
+import com.example.trackanything.models.Project
 
 /**
  * This is the repository class for the [Project] entity.
@@ -29,7 +29,17 @@ class ProjectRepository(private val projectDao: ProjectDao) {
      * @param id The ID of the [Project].
      * @return A [LiveData] object containing the [Project] associated with the ID.
      */
-    fun getById(id: Int): LiveData<Project> {
+    fun getLDById(id: Int): LiveData<Project> {
+        return projectDao.getLDById(id)
+    }
+
+    /**
+     * Retrieves a [Project] from the database by its ID.
+     *
+     * @param id The ID of the [Project].
+     * @return The [Project] associated with the ID.
+     */
+    fun getById(id: Int): Project {
         return projectDao.getById(id)
     }
 
@@ -56,7 +66,16 @@ class ProjectRepository(private val projectDao: ProjectDao) {
      *
      * @return A [LiveData] list of all [Project]s.
      */
-    fun getAll(): LiveData<List<Project>> {
+    fun getLDAll(): LiveData<List<Project>> {
+        return projectDao.getLDAll()
+    }
+
+    /**
+     * Retrieves all [Project]s from the database.
+     *
+     * @return A list of all [Project]s.
+     */
+    fun getAll(): List<Project> {
         return projectDao.getAll()
     }
 }

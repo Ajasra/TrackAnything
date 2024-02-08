@@ -5,7 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.trackanything.model.Entities.Project
+import com.example.trackanything.models.Project
 
 /**
  * This is the Data Access Object (DAO) interface for the [Project] entity.
@@ -20,7 +20,15 @@ interface ProjectDao {
      * @return A [LiveData] list of all [Project]s.
      */
     @Query("SELECT * FROM project")
-    fun getAll(): LiveData<List<Project>>
+    fun getLDAll(): LiveData<List<Project>>
+
+    /**
+     * Retrieves all [Project]s from the database.
+     *
+     * @return A list of all [Project]s.
+     */
+    @Query("SELECT * FROM project")
+    fun getAll(): List<Project>
 
     /**
      * Inserts a new [Project] into the database.
@@ -38,7 +46,16 @@ interface ProjectDao {
      * @return A [LiveData] object containing the [Project] associated with the ID.
      */
     @Query("SELECT * FROM project WHERE id = :id")
-    fun getById(id: Int): LiveData<Project>
+    fun getLDById(id: Int): LiveData<Project>
+
+    /**
+     * Retrieves a [Project] from the database by its ID.
+     *
+     * @param id The ID of the [Project].
+     * @return The [Project] associated with the ID.
+     */
+    @Query("SELECT * FROM project WHERE id = :id")
+    fun getById(id: Int): Project
 
     /**
      * Deletes a [Project] from the database by its ID.

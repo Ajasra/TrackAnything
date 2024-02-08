@@ -1,4 +1,4 @@
-package com.example.trackanything.ui
+package com.example.trackanything.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,14 +22,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.trackanything.model.Entities.Project
+import com.example.trackanything.models.Project
 import com.example.trackanything.repository.ProjectRepository
+import com.example.trackanything.ui.components.MyHeader
 import com.google.accompanist.insets.navigationBarsPadding
 
 @Composable
 fun MainScreen(navController: NavController, projectRepository: ProjectRepository) {
 
-    val projects = projectRepository.getAll().observeAsState(initial = emptyList()).value // Fetch all projects from the database
+    // Fetch all projects from the database
+    val projects = projectRepository.getLDAll().observeAsState(initial = emptyList()).value
 
     Box(modifier = Modifier.fillMaxSize()) {
         MyHeader(title = "Track Anything")

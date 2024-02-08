@@ -1,5 +1,6 @@
-package com.example.trackanything.ui
+package com.example.trackanything.ui.screens
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,8 +19,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.trackanything.models.Record
 import com.example.trackanything.repository.ProjectRepository
 import com.example.trackanything.repository.RecordRepository
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +33,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
-    val project = projectRepository.getById(projectId.toInt()).observeAsState(initial = null).value
+    val project = projectRepository.getLDById(projectId.toInt()).observeAsState(initial = null).value
 
     var value by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
@@ -39,6 +42,10 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
     var isButtonEnabled by remember { mutableStateOf(true) } // Add this line
 
     var errorText by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val activity = context as? AppCompatActivity
+    var finishActivity by remember { mutableStateOf(false) }
 
     Column( modifier = Modifier
         .fillMaxSize()
@@ -135,7 +142,7 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
 
                     showError = false
                     isButtonEnabled = false
-                    val newRecord = com.example.trackanything.model.Entities.Record(
+                    val newRecord = Record(
                         id = 0,
                         projectId = projectId.toInt(),
                         value = value,
@@ -148,7 +155,11 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
                         kotlinx.coroutines.delay(2000) // delay for 2 seconds
                         showSnackbar = false
                         withContext(Dispatchers.Main) {
-                            navController.popBackStack() // Move this line here
+                            if (navController.previousBackStackEntry != null) {
+                                navController.popBackStack()
+                            } else {
+                                finishActivity = true
+                            }
                         }
                     }
                     println("Record added: $newRecord")
@@ -171,6 +182,12 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
                 }
             ) {
                 Text(text = "Record added successfully")
+            }
+        }
+
+        if (finishActivity) {
+            LaunchedEffect(key1 = true) {
+                activity?.finish()
             }
         }
     }

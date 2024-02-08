@@ -5,7 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.trackanything.model.Entities.Record
+import com.example.trackanything.models.Record
 
 /**
  * This is the Data Access Object (DAO) interface for the [Record] entity.
