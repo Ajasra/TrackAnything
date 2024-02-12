@@ -13,8 +13,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.trackanything.R
+import com.example.trackanything.activities.DialogActivity
 import com.example.trackanything.models.Project
-import com.example.trackanything.activities.ProjectActivity
 import com.example.trackanything.utils.NotificationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -44,8 +44,7 @@ class AlarmReceiver : BroadcastReceiver() {
         // Get the project from the intent
         val project: Project = intent.getParcelableExtra("project")!!
 
-        // Create an intent for the ProjectActivity
-        val notificationIntent = Intent(context, ProjectActivity::class.java).apply {
+        val notificationIntent = Intent(context, DialogActivity::class.java).apply {
             // Put the project id as an extra
             putExtra("project_id", project.id)
             // Set the flags for the intent
@@ -61,6 +60,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .setContentText("You have a reminder for project ${project.name}")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
             .build()
 
         // Get the notification manager

@@ -1,6 +1,17 @@
 package com.example.trackanything.utils
 
+import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import androidx.navigation.NavController
+import java.io.OutputStreamWriter
 import java.util.Calendar
+import com.example.trackanything.models.Record
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * This class contains utility methods for the application.
@@ -90,6 +101,66 @@ object Helpers {
             timeList.add(calendar.timeInMillis)
         }
         return timeList
+    }
+
+
+    /**
+     * Exports the project records to a file.
+     *
+     * This function creates a new file with the name of the project in the Downloads directory,
+     * writes the records to this file, and returns the path of the created file.
+     *
+     * @param context The context to use for content resolution.
+     * @param records The list of records to be written to the file.
+     * @param projectName The name of the project, which will be used as the file name.
+     * @return The path of the created file, or null if the file could not be created.
+     */
+    fun exportProjectRecords(context: Context, records: List<Record>, projectName: String): String? {
+        val relativePath = Environment.DIRECTORY_DOWNLOADS
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "$projectName.txt")
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+            }
+        }
+
+        val uri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+
+        uri?.let {
+            context.contentResolver.openOutputStream(it)?.let { outputStream ->
+                val writer = OutputStreamWriter(outputStream)
+                for (record in records) {
+                    writer.write("${record.value}\t${record.note}\n")
+                }
+                writer.close()
+            }
+        }
+
+        return uri?.path
+    }
+
+    /**
+     * Finishes the current activity and navigates to the main screen.
+     *
+     * This function finishes the current activity and navigates to the main screen using the provided NavController.
+     * If the NavController does not have a current destination, it simply finishes the current activity.
+     *
+     * @param coroutineScope The CoroutineScope to use for launching the coroutine.
+     * @param activity The current activity, which will be finished.
+     * @param navController The NavController to use for navigation.
+     */
+    fun finishActivity(coroutineScope: CoroutineScope, activity: Activity?, navController: NavController) {
+        coroutineScope.launch {
+            // Finish the current activity
+            activity?.finish()
+            // Check if NavController has a current destination before navigating
+            if (navController.currentDestination != null) {
+                navController.navigate("main_screen")
+            }else{
+                activity?.finish()
+            }
+        }
     }
 
 }

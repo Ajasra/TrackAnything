@@ -8,12 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.*
@@ -23,12 +29,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackanything.models.Project
-import com.example.trackanything.ui.components.MyHeader
+
 import com.example.trackanything.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProjectScreen(navController: NavController, projectRepository: ProjectRepository, projectId: String) {
 
@@ -53,9 +60,21 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
         val notificationTypeList = listOf("Random", "Specific")
 
         Column(modifier = Modifier.fillMaxSize()) {
-            MyHeader(title = "Edit Project")
+            TopAppBar(
+                title = { Text(text = "Edit project") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate("main_screen") // Navigate to the main screen
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                    }
+                },
+                actions = {
 
-            Spacer(modifier = Modifier.padding(16.dp))
+                }
+            )
+
+            Spacer(modifier = Modifier.padding(2.dp))
             OutlinedTextField(
                 value = projectName,
                 onValueChange = { projectName = it },
@@ -63,7 +82,7 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.padding(16.dp))
+            Spacer(modifier = Modifier.padding(2.dp))
             OutlinedTextField(
                 value = projectDescription,
                 onValueChange = { projectDescription = it },
@@ -71,14 +90,14 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.padding(16.dp))
+            Spacer(modifier = Modifier.padding(2.dp))
             OutlinedTextField(
                 value = projectTags,
                 onValueChange = { projectTags = it },
                 label = { Text("Project Tags") },
                 modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(modifier = Modifier.padding(16.dp))
+            Spacer(modifier = Modifier.padding(2.dp))
 
             Button(onClick = { showDropdown = true }) {
                 Text("Value Type: $projectValueType")
@@ -99,7 +118,7 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
 
                 }
             }
-            Spacer(modifier = Modifier.padding(16.dp))
+            Spacer(modifier = Modifier.padding(2.dp))
 
             if (projectValueType == "select") {
                 OutlinedTextField(
@@ -130,7 +149,7 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             OutlinedTextField(
                 value = notificationValue,
@@ -138,15 +157,15 @@ fun EditProjectScreen(navController: NavController, projectRepository: ProjectRe
                 label = { Text("Notification Value") },
                 modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             Checkbox(
                 checked = projectActive,
                 onCheckedChange = { projectActive = it },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(2.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             Button(onClick = {
                 updateProject(

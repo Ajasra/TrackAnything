@@ -1,6 +1,7 @@
 package com.example.trackanything.ui.screens
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,15 +14,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Snackbar
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.*
@@ -33,14 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackanything.models.Record
 import com.example.trackanything.repository.RecordRepository
-import com.example.trackanything.ui.components.MyHeader
+import com.example.trackanything.utils.Helpers.exportProjectRecords
 import com.example.trackanything.utils.NotificationUtils
-import com.google.accompanist.insets.navigationBarsPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
@@ -48,7 +51,6 @@ fun ProjectScreen(navController: NavController, projectRepository: ProjectReposi
     val records = recordRepository.getRecordsForProject(projectId.toInt()).observeAsState(initial = emptyList()).value
 
     val showDialog = remember { mutableStateOf(false) }
-    var showSnackbar by remember { mutableStateOf(false) } // Add this line
 
     val context = LocalContext.current
 
@@ -73,9 +75,41 @@ fun ProjectScreen(navController: NavController, projectRepository: ProjectReposi
         )
     }
 
-
     Column(modifier = Modifier.fillMaxSize()) {
-        MyHeader(title = "Track Anything")
+        TopAppBar(
+            title = { Text(text = "TrackAnything") },
+            navigationIcon = {
+                IconButton(onClick = {
+                    navController.navigate("main_screen") // Navigate to the main screen
+                }) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                }
+            },
+            actions = {
+                IconButton(
+                    onClick = {
+                        exportProjectRecords(context, records, project?.name ?: "project")
+                        Toast.makeText(context, "File saved at Downloads/${project?.name}.txt", Toast.LENGTH_LONG).show()
+                    }) {
+                    Icon(Icons.Filled.Share, contentDescription = "Export")
+                }
+                IconButton(
+                    onClick = {
+                        if (project != null) {
+                            navController.navigate("editProject/${project.id}")
+                        }
+                    }) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit")
+                }
+                IconButton(
+                    onClick = {
+                        showDialog.value = true
+                    }) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Delete")
+                }
+            }
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -109,60 +143,9 @@ fun ProjectScreen(navController: NavController, projectRepository: ProjectReposi
                     }
                 }
             }
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.Bottom
-            ){
-                FloatingActionButton(
-                    onClick = { navController.navigate("main_screen") },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .navigationBarsPadding(),
-                    content = {
-                        Icon(Icons.Filled.Home, contentDescription = "Delete")
-                    }
-                )
-                FloatingActionButton(
-                    onClick = {
-                        if (project != null) {
-                            navController.navigate("editProject/${project.id}")
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .navigationBarsPadding(),
-                    content = {
-                        Icon(Icons.Filled.Edit, contentDescription = "Add")
-                    }
-                )
-                FloatingActionButton(
-                    onClick = { showDialog.value = true },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .navigationBarsPadding(),
-                    content = {
-                        Icon(Icons.Filled.Delete, contentDescription = "Delete")
-                    }
-                )
-            }
 
         }
 
-        if (showSnackbar) {
-            Snackbar(
-                modifier = Modifier.align(Alignment.End),
-                action = {
-                    TextButton(onClick = { showSnackbar = false }) {
-                        Text(text = "Dismiss")
-                    }
-                }
-            ) {
-                Text(text = "Project deleted")
-            }
-        }
     }
 }
 

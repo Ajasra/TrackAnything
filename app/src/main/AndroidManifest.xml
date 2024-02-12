@@ -27,7 +27,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.ProjectActivity" />
+        <activity android:name=".activities.DialogActivity"
+            android:theme="@style/Theme.AppCompat.Light.Dialog">
+        </activity>
         <receiver android:name=".receivers.AlarmReceiver" />
         <receiver android:name=".receivers.BootCompletedReceiver"
             android:exported="true">
@@ -35,6 +37,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+        <receiver android:name=".receivers.NotificationReceiver" />
     </application>
 
 </manifest>

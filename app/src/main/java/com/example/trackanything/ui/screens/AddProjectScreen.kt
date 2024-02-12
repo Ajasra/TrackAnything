@@ -1,11 +1,17 @@
 package com.example.trackanything.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProjectScreen(navController: NavController, projectRepository: ProjectRepository) {
     var projectName by remember { mutableStateOf("") }
@@ -41,11 +48,24 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TopAppBar(
+            title = { Text(text = "Add project") },
+            navigationIcon = {
+                IconButton(onClick = {
+                    navController.navigate("main_screen") // Navigate to the main screen
+                }) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                }
+            },
+            actions = {
+
+            }
+        )
+
         OutlinedTextField(
             value = projectName,
             onValueChange = { projectName = it },
@@ -56,17 +76,17 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
             Text(
                 text = "Project name is required",
                 color = Color.Red,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 2.dp)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = projectDescription,
             onValueChange = { projectDescription = it },
             label = { Text("Description") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Button(onClick = { showDropdown = true }) {
             Text("Value Type: $selectedValueType")
@@ -88,7 +108,7 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         if (selectedValueType == "select") {
             OutlinedTextField(
@@ -97,7 +117,7 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
                 label = { Text("Enter values (comma separated)") },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(2.dp))
         }
 
 //        Add here fields for notification type and time
@@ -121,7 +141,7 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         OutlinedTextField(
             value = notificationValue,
@@ -142,7 +162,10 @@ fun AddProjectScreen(navController: NavController, projectRepository: ProjectRep
             )
         }
 
-        Button(onClick = {
+        Button(
+            modifier = Modifier.padding(top = 32.dp),
+
+            onClick = {
             if (projectName.isBlank()) {
                 showError = true
             } else {

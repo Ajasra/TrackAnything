@@ -1,20 +1,31 @@
 package com.example.trackanything.ui.screens
 
+import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,11 +36,14 @@ import androidx.navigation.NavController
 import com.example.trackanything.models.Record
 import com.example.trackanything.repository.ProjectRepository
 import com.example.trackanything.repository.RecordRepository
+import com.example.trackanything.utils.Helpers.finishActivity
+import com.google.accompanist.insets.navigationBarsPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepository, recordRepository: RecordRepository, projectId: String) {
 
@@ -38,21 +52,34 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
     var value by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
-    var showSnackbar by remember { mutableStateOf(false) } // Add this line
     var isButtonEnabled by remember { mutableStateOf(true) } // Add this line
 
     var errorText by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val activity = context as? AppCompatActivity
-    var finishActivity by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Column( modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        .fillMaxWidth()
+        .padding(4.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TopAppBar(
+            title = { Text(text = "Add record") },
+            navigationIcon = {
+                IconButton(onClick = {
+                    finishActivity(coroutineScope, activity, navController)
+                }) {
+                    Icon(Icons.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                }
+            },
+            actions = {
+
+            }
+        )
         Text(text = project?.name ?: "")
         Text(text = project?.description ?: "")
 
@@ -151,44 +178,20 @@ fun AddRecordScreen(navController: NavController, projectRepository: ProjectRepo
                     )
                     CoroutineScope(Dispatchers.IO).launch {
                         recordRepository.insert(newRecord)
-                        showSnackbar = true
-                        kotlinx.coroutines.delay(2000) // delay for 2 seconds
-                        showSnackbar = false
                         withContext(Dispatchers.Main) {
-                            if (navController.previousBackStackEntry != null) {
-                                navController.popBackStack()
-                            } else {
-                                finishActivity = true
-                            }
+                            navController.popBackStack()
                         }
+                        finishActivity(coroutineScope, activity, navController)
                     }
-                    println("Record added: $newRecord")
 
+                    println("Record added: $newRecord")
                 }
             },
             enabled = isButtonEnabled // Use the state variable here
         ) {
             Text("Add Record")
         }
-
-        // Add this block
-        if (showSnackbar) {
-            Snackbar(
-                modifier = Modifier.align(Alignment.End),
-                action = {
-                    TextButton(onClick = { showSnackbar = false }) {
-                        Text(text = "Dismiss")
-                    }
-                }
-            ) {
-                Text(text = "Record added successfully")
-            }
-        }
-
-        if (finishActivity) {
-            LaunchedEffect(key1 = true) {
-                activity?.finish()
-            }
-        }
     }
+
+
 }
