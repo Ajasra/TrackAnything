@@ -11,6 +11,7 @@ buildscript {
         maven { url = uri("https://jitpack.io") }
     }
     dependencies {
-        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.0-1.0.12") // Updated version
+        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.0-1.0.12")
+
     }
 }

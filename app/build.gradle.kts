@@ -90,4 +90,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("com.google.accompanist:accompanist-insets:0.16.0")
+
+    implementation("com.github.PhilJay:MPAndroidChart:3.1.0")
 }

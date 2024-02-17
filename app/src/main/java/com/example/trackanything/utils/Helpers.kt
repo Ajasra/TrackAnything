@@ -45,6 +45,24 @@ object Helpers {
     }
 
     /**
+     * Converts a long value to a date string.
+     *
+     * @param time The long value to be converted.
+     * @return The date string of the long value.
+     */
+    fun convertLongToDateString(time: Long): String {
+        // timeAdded converted from long (milliseconds) to format "d/m/y h:m"
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = time
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val year = calendar.get(Calendar.YEAR)
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+        return "$day/$month/$year $hour:$minute"
+    }
+
+    /**
      * Converts a time string to a timestamp for a current day
      *
      * @param time The time string to be converted.
@@ -131,7 +149,7 @@ object Helpers {
             context.contentResolver.openOutputStream(it)?.let { outputStream ->
                 val writer = OutputStreamWriter(outputStream)
                 for (record in records) {
-                    writer.write("${record.value}\t${record.note}\n")
+                    writer.write("${record.timeAdded}\t${record.value}\t${record.note}\n")
                 }
                 writer.close()
             }

@@ -23,6 +23,20 @@ class RecordRepository(private val recordDao: RecordDao) {
         return recordDao.getByProject(projectId)
     }
 
+
+    /**
+     * Retrieves all [Record]s for a specific project from the database.
+     *
+     * @param projectId The ID of the project.
+     * @param time1 The start time.
+     * @param time2 The end time.
+     * @return A [LiveData] list of all [Record]s for the specified project, ordered by ID in ascending order.
+     */
+    fun getRecordsForProjectAndTime(projectId: Int, time1: Long, time2: Long): LiveData<List<Record>> {
+        return recordDao.getByProjectAndTime(projectId, time1, time2)
+    }
+
+
     /**
      * Inserts a new [Record] into the database.
      *
